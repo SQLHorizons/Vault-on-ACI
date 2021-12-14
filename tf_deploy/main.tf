@@ -214,7 +214,7 @@ output "container_create" {
     sensitive = true
     value = <<EOF
 az container create --resource-group ${azurerm_resource_group.vault.name} \
-  --name ${local.vault_name} --image vault:1.5.3 \
+  --name ${local.vault_name} --image vault:1.9.1 \
   --command-line 'vault server -config /vault/vault-config.hcl' \
   --dns-name-label ${local.vault_name} --ports 8200 \
   --azure-file-volume-account-name ${local.storage_account_name} \

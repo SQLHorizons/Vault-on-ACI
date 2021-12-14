@@ -242,5 +242,5 @@ output "storage_accountName" {
 }
 
 output "container_delete" {
-    value = "az container delete --resource-group ${azurerm_resource_group.vault.name} --name ${local.vault_name}"
+    value = "az container delete --resource-group ${azurerm_resource_group.vault.name} --name ${local.vault_name} --yes"
 }

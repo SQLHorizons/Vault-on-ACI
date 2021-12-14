@@ -2,9 +2,9 @@
 # Use this configuration to deploy the necessary resources to back an ACI
 # deployment of HashiCorp Vault. Use the deploy_script.sh file to proceed
 # with setting up the infrastructure and then use the output of this
-# module to create the container instance. 
+# module to create the container instance.
 #
-# NOTE: This uses a self-signed certificate and is in no way intended for 
+# NOTE: This uses a self-signed certificate and is in no way intended for
 # production deployment.
 ##########################################################################
 
@@ -12,10 +12,12 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.0"
-
+      version = "~> 2.89.0"
     }
   }
+  required_version = ">= 1.1"
+
+  backend "azurerm" {}
 }
 
 ##########################################################################
@@ -29,7 +31,7 @@ variable "prefix" {
 
 variable "location" {
     type = string
-    default = "eastus"
+    default = "uksouth"
 }
 
 ##########################################################################
@@ -101,12 +103,12 @@ resource "tls_self_signed_cert" "cert" {
 resource "local_file" "key" {
     content     = tls_private_key.private.private_key_pem
     filename = "${path.module}/vault-cert.key"
-} 
+}
 
 resource "local_file" "cert" {
     content     = tls_self_signed_cert.cert.cert_pem
     filename = "${path.module}/vault-cert.crt"
-} 
+}
 
 # Resource group
 
@@ -159,7 +161,6 @@ resource "azurerm_key_vault" "vault" {
   location                    = azurerm_resource_group.vault.location
   resource_group_name         = azurerm_resource_group.vault.name
   tenant_id                   = data.azurerm_client_config.current.tenant_id
-  soft_delete_enabled         = true
   soft_delete_retention_days  = 7
   purge_protection_enabled    = false
 
@@ -210,6 +211,7 @@ resource "azurerm_key_vault_key" "vault-key" {
 # Command to create container instance
 
 output "container_create" {
+    sensitive = true
     value = <<EOF
 az container create --resource-group ${azurerm_resource_group.vault.name} \
   --name ${local.vault_name} --image vault:1.5.3 \
